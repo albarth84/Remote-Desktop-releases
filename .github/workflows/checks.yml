@@ -49,7 +49,7 @@ jobs:
           ref: ${{ inputs.ref }}
           ssh-key: ${{ secrets.SOURCE_SSH_KEY }}
           persist-credentials: false
-      - run: sudo apt-get update && sudo apt-get install -y xvfb xdotool x11-xserver-utils
+      - run: sudo apt-get update && sudo apt-get install -y xvfb xdotool x11-xserver-utils xclip
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo build --release -p capture-poc
@@ -70,6 +70,8 @@ jobs:
           eval "$(xdotool getmouselocation --shell)"
           echo "pointer at $X,$Y"
           test "$X" -ge 318 -a "$X" -le 322 -a "$Y" -ge 358 -a "$Y" -le 362
+      - name: Shared clipboard (text and files) between two X displays
+        run: ./scripts/e2e-clipboard-x11.sh
 
   windows:
     runs-on: windows-latest
