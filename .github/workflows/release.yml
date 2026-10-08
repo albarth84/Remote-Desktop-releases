@@ -4,7 +4,8 @@
 #   gh workflow run release.yml -R albarth84/Remote-Desktop-releases -f tag=v0.7.0
 #
 # Secrets: SOURCE_SSH_KEY (read-only deploy key of the source repo),
-# TAURI_SIGNING_PRIVATE_KEY(+_PASSWORD) to sign update packages.
+# TAURI_SIGNING_PRIVATE_KEY(+_PASSWORD) to sign update packages,
+# APPLE_CERTIFICATE(+_PASSWORD), APPLE_SIGNING_IDENTITY, KEYCHAIN_PASSWORD for macOS code signing.
 name: release
 
 on:
@@ -65,6 +66,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # macOS code signing with a stable (self-signed) identity: macOS then recognises
+          # every update as the same app and keeps its Screen Recording / Accessibility
+          # permissions. Not a Developer ID: Gatekeeper still warns on first download.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         with:
           projectPath: apps/desktop
           tagName: ${{ inputs.tag }}
