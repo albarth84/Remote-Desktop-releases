@@ -5,7 +5,8 @@
 #
 # Secrets: SOURCE_SSH_KEY (read-only deploy key of the source repo),
 # TAURI_SIGNING_PRIVATE_KEY(+_PASSWORD) to sign update packages,
-# APPLE_CERTIFICATE(+_PASSWORD), APPLE_SIGNING_IDENTITY, KEYCHAIN_PASSWORD for macOS code signing.
+# APPLE_CERTIFICATE(+_PASSWORD), APPLE_SIGNING_IDENTITY, KEYCHAIN_PASSWORD for macOS code signing
+# (self-signed stable identity, imported by hand: Tauri's own import rejects untrusted certs).
 name: release
 
 on:
@@ -61,18 +62,34 @@ jobs:
       - name: Frontend dependencies
         working-directory: apps/desktop
         run: npm ci
+      # Stable (self-signed) code signing identity: macOS then recognises every update as
+      # the same app and keeps its Screen Recording / Accessibility permissions (ADR 0027).
+      # Not a Developer ID, so Gatekeeper still warns on the first download.
+      - name: Import macOS signing certificate
+        if: startsWith(matrix.platform, 'macos')
+        env:
+          CERT: ${{ secrets.APPLE_CERTIFICATE }}
+          CERT_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          kc="$RUNNER_TEMP/signing.keychain-db"
+          echo "$CERT" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
+          security set-keychain-settings -lut 21600 "$kc"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$kc"
+          security import "$RUNNER_TEMP/cert.p12" -k "$kc" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$kc" >/dev/null
+          security list-keychains -d user -s "$kc" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/cert.p12"
+          security find-identity -p codesigning "$kc"
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          # macOS code signing with a stable (self-signed) identity: macOS then recognises
-          # every update as the same app and keeps its Screen Recording / Accessibility
-          # permissions. Not a Developer ID: Gatekeeper still warns on first download.
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          # macOS: sign with the stable identity imported above (only the name is passed,
+          # so Tauri does not re-import and reject the self-signed certificate).
+          APPLE_SIGNING_IDENTITY: ${{ startsWith(matrix.platform, 'macos') && secrets.APPLE_SIGNING_IDENTITY || '' }}
         with:
           projectPath: apps/desktop
           tagName: ${{ inputs.tag }}
