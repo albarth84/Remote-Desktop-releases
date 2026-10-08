@@ -31,7 +31,28 @@ Gli installer non sono ancora firmati/notarizzati, quindi il sistema mostra un a
   In alternativa: apri l'app una volta, poi *Impostazioni di Sistema → Privacy e sicurezza → Apri comunque*.
 - **Windows** — nella schermata SmartScreen: *Ulteriori informazioni* → *Esegui comunque*.
 
+- **Antivirus aziendali** (es. WithSecure) possono bloccare l'app perché non è ancora firmata digitalmente e, come
+  ogni software di assistenza remota, cattura lo schermo e simula mouse e tastiera. Serve un'esclusione da parte
+  dell'amministratore dell'antivirus.
+
 Una volta installata, l'app si aggiorna dal pulsante **Aggiornamenti** in alto (pacchetti firmati e verificati).
+
+### Kronos Quick Support (senza installazione)
+
+Per farsi assistere al volo: si scarica, si avvia, mostra **ID e password**, ogni connessione va **confermata**.
+Serve solo a condividere il proprio schermo (non a controllare altri computer); niente accesso non presidiato,
+niente avvio automatico. Chiusa la finestra la condivisione termina e non resta nulla di salvato
+(su Windows resta solo la cache del motore web nella cartella del profilo).
+
+| Sistema | File |
+|---|---|
+| Windows | `KronosQuickSupport_<versione>_windows_x64.exe` (serve WebView2, già presente in Windows 10/11 aggiornati) |
+| macOS Apple Silicon | `KronosQuickSupport_<versione>_macos_aarch64.zip` |
+| macOS Intel | `KronosQuickSupport_<versione>_macos_x64.zip` |
+| Linux | `KronosQuickSupport_<versione>_linux_amd64.AppImage` (rendilo eseguibile: `chmod +x`) |
+
+Su macOS: estrai lo zip e apri l'app (al primo avvio vale lo stesso avviso di Gatekeeper descritto sopra, con
+`"Kronos Quick Support.app"` al posto del nome dell'app); servono i permessi Registrazione schermo e Accessibilità.
 
 ## Come funziona
 

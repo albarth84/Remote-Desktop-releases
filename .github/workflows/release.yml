@@ -94,10 +94,48 @@ jobs:
           projectPath: apps/desktop
           tagName: ${{ inputs.tag }}
           releaseName: Kronos Remote Support ${{ inputs.tag }}
-          releaseBody: Aggiornamento di Kronos Remote Support. Si installa dal pulsante "Aggiornamenti" nell'app.
+          releaseBody: |
+            Aggiornamento di Kronos Remote Support. Si installa dal pulsante "Aggiornamenti" nell'app.
+
+            **Kronos Quick Support** (file `KronosQuickSupport_*`): versione senza installazione per farsi assistere.
+            Si avvia, mostra ID e password, ogni connessione va confermata; chiusa la finestra non resta nulla.
           releaseCommitish: main
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: true
           updaterJsonPreferNsis: true
           args: ${{ matrix.args }}
+
+      # Quick access (ADR 0031): share-only build, no installer. Windows: the bare .exe;
+      # macOS: the signed .app zipped; Linux: an AppImage.
+      - name: Quick access build
+        shell: bash
+        working-directory: apps/desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ inputs.tag }}
+          APPLE_SIGNING_IDENTITY: ${{ startsWith(matrix.platform, 'macos') && secrets.APPLE_SIGNING_IDENTITY || '' }}
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            macOS) bundles="--bundles app" ;;
+            Linux) bundles="--bundles appimage" ;;
+            Windows) bundles="--no-bundle" ;;
+          esac
+          npx tauri build --config src-tauri/tauri.quick.conf.json --features quick-access $bundles ${{ matrix.args }}
+          version="${TAG#v}"
+          out="../../target/${{ matrix.rust_targets }}/release"
+          [ -n "${{ matrix.rust_targets }}" ] || out="../../target/release"
+          case "$RUNNER_OS" in
+            macOS)
+              arch=$([ "${{ matrix.rust_targets }}" = aarch64-apple-darwin ] && echo aarch64 || echo x64)
+              file="KronosQuickSupport_${version}_macos_${arch}.zip"
+              ditto -c -k --keepParent "$out/bundle/macos/Kronos Quick Support.app" "$file" ;;
+            Linux)
+              file="KronosQuickSupport_${version}_linux_amd64.AppImage"
+              cp "$out"/bundle/appimage/*.AppImage "$file" ;;
+            Windows)
+              file="KronosQuickSupport_${version}_windows_x64.exe"
+              cp "$out/kronos-quick-support.exe" "$file" ;;
+          esac
+          gh release upload "$TAG" "$file" --clobber -R "${{ github.repository }}"
