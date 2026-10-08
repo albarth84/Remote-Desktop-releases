@@ -22,9 +22,14 @@ Scarica l'ultima versione dalla pagina **[Releases](../../releases/latest)**:
 | Windows | `Kronos.Remote.Support_<versione>_x64-setup.exe` (oppure `.msi`) |
 | Linux | `.AppImage` (si aggiorna da sola), `.deb`, `.rpm` |
 
-Gli installer non sono ancora firmati:
-- **macOS**: al primo avvio clic destro sull'app → *Apri*.
-- **Windows**: nella schermata SmartScreen → *Ulteriori informazioni* → *Esegui comunque*.
+Gli installer non sono ancora firmati/notarizzati, quindi il sistema mostra un avviso al primo avvio:
+- **macOS** — se compare *"è danneggiata e non può essere aperta"* (o propone di spostarla nel Cestino),
+  dopo averla copiata in Applicazioni esegui nel Terminale:
+  ```
+  xattr -dr com.apple.quarantine "/Applications/Kronos Remote Support.app"
+  ```
+  In alternativa: apri l'app una volta, poi *Impostazioni di Sistema → Privacy e sicurezza → Apri comunque*.
+- **Windows** — nella schermata SmartScreen: *Ulteriori informazioni* → *Esegui comunque*.
 
 Una volta installata, l'app si aggiorna dal pulsante **Aggiornamenti** in alto (pacchetti firmati e verificati).
 
