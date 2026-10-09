@@ -22,17 +22,17 @@ Scarica l'ultima versione dalla pagina **[Releases](../../releases/latest)**:
 | Windows | `Kronos.Remote.Support_<versione>_x64-setup.exe` (oppure `.msi`) |
 | Linux | `.AppImage` (si aggiorna da sola), `.deb`, `.rpm` |
 
-Gli installer non sono ancora firmati/notarizzati, quindi il sistema mostra un avviso al primo avvio:
-- **macOS** — se compare *"è danneggiata e non può essere aperta"* (o propone di spostarla nel Cestino),
-  dopo averla copiata in Applicazioni esegui nel Terminale:
-  ```
-  xattr -dr com.apple.quarantine "/Applications/Kronos Remote Support.app"
-  ```
-  In alternativa: apri l'app una volta, poi *Impostazioni di Sistema → Privacy e sicurezza → Apri comunque*.
-- **Windows** — nella schermata SmartScreen: *Ulteriori informazioni* → *Esegui comunque*.
+Le app non sono ancora firmate con un certificato Apple/Microsoft, quindi al primo avvio il sistema avvisa.
+Si apre comunque **senza usare il Terminale**:
 
-- **Antivirus aziendali** (es. WithSecure) possono bloccare l'app perché non è ancora firmata digitalmente e, come
-  ogni software di assistenza remota, cattura lo schermo e simula mouse e tastiera. Serve un'esclusione da parte
+- **macOS** — apri l'app: compare *"Apple non può verificare che «Kronos Remote Support» sia privo di malware"*.
+  Premi **Fine** (non "Sposta nel Cestino"), poi apri *Impostazioni di Sistema → Privacy e sicurezza*, scorri fino
+  in fondo e premi **Apri comunque** accanto al nome dell'app; conferma con la password del Mac e **Apri**.
+  Va fatto una sola volta; gli aggiornamenti dall'app non lo richiedono più.
+  (Solo se l'app risultasse *"danneggiata"*, da Terminale: `xattr -dr com.apple.quarantine "/Applications/Kronos Remote Support.app"`.)
+- **Windows** — nella schermata SmartScreen: *Ulteriori informazioni* → *Esegui comunque*.
+- **Antivirus aziendali** (es. WithSecure) possono bloccare l'app perché non è firmata digitalmente e, come ogni
+  software di assistenza remota, cattura lo schermo e simula mouse e tastiera. Serve un'esclusione da parte
   dell'amministratore dell'antivirus.
 
 Una volta installata, l'app si aggiorna dal pulsante **Aggiornamenti** in alto (pacchetti firmati e verificati).
@@ -51,8 +51,8 @@ niente avvio automatico. Chiusa la finestra la condivisione termina e non resta 
 | macOS Intel | `KronosQuickSupport_<versione>_macos_x64.zip` |
 | Linux | `KronosQuickSupport_<versione>_linux_amd64.AppImage` (rendilo eseguibile: `chmod +x`) |
 
-Su macOS: estrai lo zip e apri l'app (al primo avvio vale lo stesso avviso di Gatekeeper descritto sopra, con
-`"Kronos Quick Support.app"` al posto del nome dell'app); servono i permessi Registrazione schermo e Accessibilità.
+Su macOS: estrai lo zip e apri l'app; al primo avvio vale la procedura **Apri comunque** descritta sopra. Servono
+i permessi Registrazione schermo e Accessibilità.
 
 ## Come funziona
 
